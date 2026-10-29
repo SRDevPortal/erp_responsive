@@ -1,0 +1,30 @@
+{
+  "doctype": "DocType",
+  "name": "ERP Responsive Settings",
+  "module": "ERP Responsive",
+  "issingle": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "enable_responsive_layout"
+  ],
+  "fields": [
+    {
+      "fieldname": "enable_responsive_layout",
+      "fieldtype": "Check",
+      "label": "Enable Responsive Layout",
+      "default": "1",
+      "description": "Apply mobile layouts, scrollable lists and child tables, and larger touch controls across Desk. Disable to use the original app layouts."
+    }
+  ],
+  "permissions": [
+    {
+      "role": "System Manager",
+      "read": 1,
+      "write": 1,
+      "create": 1
+    }
+  ],
+  "track_changes": 1,
+  "sort_field": "modified",
+  "sort_order": "DESC"
+}
