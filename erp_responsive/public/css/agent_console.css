@@ -1,0 +1,471 @@
+/* Agent Console: keep native data, permissions and event handlers intact. */
+body.erp-agent-console .erp-console-queue {
+    width: var(--erp-queue-width) !important;
+    min-width: var(--erp-queue-width) !important;
+    table-layout: fixed;
+}
+body.erp-agent-console .erp-console-queue th {
+    width: var(--erp-column-width) !important;
+    white-space: normal;
+    line-height: 1.4;
+    vertical-align: middle;
+}
+body.erp-agent-console .erp-console-queue td,
+body.erp-agent-console .erp-console-queue th { padding: 10px 8px; }
+body.erp-agent-console .erp-console-queue [data-erp-console-index="0"] { padding: 10px 4px; }
+body.erp-agent-console .erp-console-queue [data-erp-console-index="1"] {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+body.erp-agent-console .erp-console-queue code { font-size: 11px; }
+body.erp-agent-console .erp-console-queue [data-action="call-row"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    white-space: nowrap;
+    min-height: 44px;
+    padding: 8px 4px;
+}
+body.erp-agent-console .erp-console-queue [data-action="call-row"] .fa-phone { display: none; }
+.erp-console-scroll-hint { display: none; }
+
+@media screen and (max-width: 991px) {
+    body.erp-agent-console .vobiz-console {
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        overflow: visible;
+    }
+    body.erp-agent-console .vobiz-console .vobiz-band {
+        background: var(--card-bg);
+        border-color: var(--border-color);
+        border-radius: 12px;
+    }
+    body.erp-agent-console .erp-console-scroll-hint {
+        display: block;
+        color: var(--text-muted);
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0 0 8px;
+    }
+    body.erp-agent-console .vobiz-console .vobiz-table-wrap {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        scrollbar-width: thin;
+    }
+    body.erp-agent-console .erp-console-queue thead { background: var(--subtle-fg); }
+    body.erp-agent-console .erp-console-queue td { height: 60px; }
+    body.erp-agent-console .erp-console-queue input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    body.erp-agent-console .erp-console-queue td:has(> [data-role="row-check"]) { cursor: pointer; }
+    body.erp-agent-console .vobiz-table:not(.erp-console-queue) {
+        table-layout: auto;
+        min-width: 950px;
+    }
+    body.erp-agent-console .vobiz-table:not(.erp-console-queue) th,
+    body.erp-agent-console .vobiz-table:not(.erp-console-queue) td { min-width: 130px; }
+}
+@media screen and (max-width: 991px) {
+    body.erp-agent-console .vobiz-console-head {
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    body.erp-agent-console .vobiz-console-head h2 { font-size: 21px; line-height: 1.3; }
+    body.erp-agent-console .vobiz-eyebrow { font-size: 10px; line-height: 1.5; }
+    body.erp-agent-console .vobiz-head-actions { justify-content: space-between; }
+    body.erp-agent-console .vobiz-tabs { gap: 16px; margin-bottom: 12px; }
+    body.erp-agent-console .vobiz-tabs > button {
+        font-size: 13px;
+        min-height: 44px;
+        padding: 10px 2px;
+    }
+    body.erp-agent-console .vobiz-band { padding: 10px; margin-bottom: 12px; }
+    body.erp-agent-console .vobiz-dialer-control .vobiz-actions {
+        display: grid;
+        width: 100%;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    body.erp-agent-console .vobiz-actions [data-action="auto-report"] { grid-column: 1 / -1; }
+    body.erp-agent-console .vobiz-softphone { display: block; }
+    body.erp-agent-console .vobiz-softphone.hidden { display: none; }
+    body.erp-agent-console .vobiz-softphone-state { align-items: flex-start; }
+    body.erp-agent-console .vobiz-softphone-dot { margin-top: 6px; }
+    body.erp-agent-console .vobiz-softphone-actions { justify-content: flex-start; margin: 10px 0; }
+    body.erp-agent-console .vobiz-softphone-meta { font-size: 12px; }
+    body.erp-agent-console .vobiz-softphone [data-role="mic-test-panel"] meter { max-width: 100%; }
+    body.erp-agent-console .vobiz-queue-tools { gap: 8px; }
+    body.erp-agent-console .vobiz-queue-tools > * { min-width: 0; max-width: 100%; }
+    body.erp-agent-console .vobiz-queue-tools [data-role="search"],
+    body.erp-agent-console .vobiz-queue-tools [data-role="encounter-search"] {
+        flex: 1 1 100%;
+        order: -1;
+        width: 100%;
+        max-width: 100%;
+    }
+    body.erp-agent-console .vobiz-queue-tools [data-role="queue-source-wrapper"],
+    body.erp-agent-console .vobiz-queue-tools [data-role="queue-sort-wrapper"] { flex: 1 1 120px; }
+    body.erp-agent-console .vobiz-console .btn,
+    body.erp-agent-console .vobiz-workdesk-modal .btn { min-height: 44px; }
+    body.erp-agent-console .vobiz-page-controls {
+        display: flex;
+        flex-wrap: nowrap;
+        width: 100%;
+        gap: 6px;
+    }
+    body.erp-agent-console .vobiz-page-controls .btn { min-width: 44px; }
+    body.erp-agent-console .vobiz-page-controls select { width: 64px; flex: 0 0 64px; }
+    body.erp-agent-console .vobiz-page-number { min-width: 0; flex: 1; }
+    body.erp-agent-console .vobiz-workdesk-modal .modal-dialog {
+        width: calc(100% - 16px) !important;
+        max-width: none !important;
+        margin: 8px auto !important;
+        height: calc(100dvh - 16px);
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .modal-content {
+        height: 100%;
+        max-height: 100%;
+        display: flex;
+        flex-direction: column;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .modal-header,
+    body.erp-agent-console .vobiz-workdesk-modal .modal-footer {
+        flex: 0 0 auto;
+        padding: 10px 12px;
+        background: var(--card-bg);
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .modal-header .modal-title { font-size: 17px; }
+    body.erp-agent-console .vobiz-workdesk-modal .modal-header .btn-modal-close {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .modal-body {
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: none;
+        padding: 0 12px 12px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--card-bg);
+        padding-top: 4px;
+        margin: 0 0 12px;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-field-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-field {
+        padding: 10px;
+        overflow-wrap: anywhere;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-field-value { font-size: 14px; line-height: 1.5; }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-workdesk-title h3 { font-size: 20px; }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-workdesk-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-workdesk-actions .btn {
+        white-space: normal;
+        line-height: 1.4;
+        margin: 0;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .form-control {
+        min-height: 44px;
+        font-size: 16px;
+        width: 100%;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal textarea { min-height: 100px; }
+    body.erp-agent-console .filter-popover {
+        max-width: calc(100vw - 24px);
+        width: calc(100vw - 24px);
+    }
+    body.erp-agent-console .filter-popover .filter-action-buttons { flex-wrap: wrap; gap: 8px; }
+    body.erp-agent-console .filter-popover .btn { min-height: 44px; }
+    body.erp-agent-console .filter-popover .filter-field { flex-wrap: wrap; }
+    body.erp-agent-console .filter-popover .frappe-control { min-width: 0; max-width: 100%; }
+    body.erp-agent-console .filter-popover input,
+    body.erp-agent-console .filter-popover select { min-height: 44px; font-size: 16px; }
+}
+
+
+.erp-console-section-nav { display: none; }
+@media screen and (max-width: 767px) {
+    body.erp-agent-console .vobiz-workdesk-modal .erp-console-section-nav {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        margin: 0 0 12px;
+        background: var(--card-bg);
+        border-bottom: 1px solid var(--border-color);
+        font-size: 13px;
+    }
+    body.erp-agent-console .erp-console-section-nav select { flex: 1; min-width: 0; }
+    body.erp-agent-console .erp-console-section-nav + .vobiz-tabs { display: none; }
+}
+
+@media screen and (max-width: 767px) {
+    body.erp-agent-console .navbar .navbar-brand {
+        flex: 0 0 24px;
+        width: 24px;
+        margin-right: 8px;
+    }
+    body.erp-agent-console .navbar .app-logo { width: 24px; min-width: 24px; }
+    body.erp-agent-console .filter-popover {
+        position: fixed !important;
+        inset: auto 12px 12px !important;
+        transform: none !important;
+        width: calc(100vw - 24px) !important;
+        min-width: 0 !important;
+        max-width: calc(100vw - 24px) !important;
+        margin: 0 !important;
+        max-height: calc(100dvh - var(--navbar-height, 48px) - 24px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        border-radius: 12px;
+        box-shadow: var(--shadow-lg);
+    }
+    body.erp-agent-console .filter-popover > .arrow { display: none; }
+    body.erp-agent-console .filter-popover .filter-action-buttons > div {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+    }
+    body.erp-agent-console .filter-popover .awesomplete > ul { max-height: 160px; overflow-y: auto; }
+    body.erp-agent-console .vobiz-table td[colspan] {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        max-width: calc(100vw - 48px);
+    }
+    body.erp-agent-console .vobiz-table:has(td[colspan]):not(:has(thead th)) {
+        min-width: 100%;
+        width: 100%;
+    }
+}
+
+/* Empty queue text belongs inside the viewport, not in the center of a wide table. */
+body.erp-agent-console .erp-console-queue:has(tbody td[colspan]):not(:has([data-action="call-row"])) {
+    width: 100% !important;
+    min-width: 100% !important;
+    table-layout: auto;
+}
+body.erp-agent-console .erp-console-queue:has(tbody td[colspan]):not(:has([data-action="call-row"])) thead {
+    display: none;
+}
+body.erp-agent-console .vobiz-queue:has(tbody td[colspan]):not(:has([data-action="call-row"])) .erp-console-scroll-hint {
+    display: none;
+}
+
+@media screen and (max-width: 767px) {
+    body.erp-agent-console .navbar .navbar-collapse { min-width: 0; }
+    body.erp-agent-console .navbar form[role="search"] { min-width: 0; width: 0; flex: 1 1 0; }
+    body.erp-agent-console .navbar .search-bar,
+    body.erp-agent-console .navbar .search-bar .awesomplete {
+        min-width: 0;
+        width: 100%;
+    }
+    body.erp-agent-console .navbar .navbar-nav { flex-shrink: 0; }
+    body.erp-agent-console .filter-popover .popover-body,
+    body.erp-agent-console .filter-popover .filter-area {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+}
+
+/* WhatsApp is a conversation viewport, not a short card above unused space. */
+@media screen and (max-width: 991px) {
+    body.erp-agent-console .vobiz-workdesk-modal:has([data-wa-reply]) {
+        top: var(--erp-console-viewport-top, 0px);
+        height: var(--erp-console-viewport-height, 100dvh);
+    }
+    body.erp-agent-console .vobiz-workdesk-modal:has([data-wa-reply]) .modal-dialog {
+        height: calc(var(--erp-console-viewport-height, 100dvh) - 16px);
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .modal-body:has([data-wa-reply]),
+    body.erp-agent-console .vobiz-workdesk-modal .modal-body > div:has([data-wa-reply]),
+    body.erp-agent-console .vobiz-workdesk-modal :is(
+        .form-layout, .form-page, .form-section, .section-body, .form-column,
+        form, .frappe-control[data-fieldname="details"], .vobiz-detail-dialog,
+        [data-detail-panel]
+    ):has([data-wa-reply]) {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 0;
+        min-height: 0;
+        min-width: 0;
+        width: 100%;
+        margin: 0;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .modal-body:has([data-wa-reply]) {
+        overflow: hidden;
+        padding-bottom: 8px;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-detail-dialog:has([data-wa-reply]) {
+        overflow: visible;
+    }
+    body.erp-agent-console .vobiz-detail-dialog:has([data-wa-reply]) > .erp-console-section-nav,
+    body.erp-agent-console .vobiz-detail-dialog:has([data-wa-reply]) > .vobiz-tabs {
+        position: static;
+        flex: 0 0 auto;
+        margin-bottom: 8px;
+    }
+    body.erp-agent-console .vobiz-workdesk-card:has([data-wa-reply]) {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 0;
+        min-height: 0;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        background: transparent;
+    }
+    /* The section selector/native tab already identifies this conversation view. */
+    body.erp-agent-console .vobiz-workdesk-card:has([data-wa-reply]) > h4 { display: none; }
+    body.erp-agent-console .vobiz-workdesk-card:has([data-wa-reply]) > .vobiz-related-meta {
+        flex: 0 1 auto;
+        max-height: 72px;
+        overflow-y: auto;
+        margin-bottom: 8px;
+        line-height: 1.5;
+    }
+    body.erp-agent-console .vobiz-workdesk-card > .erp-wa-duplicate-preview { display: none; }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-wa-chat-list {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        flex: 1 1 0;
+        min-height: 32px;
+        max-height: none;
+        margin: 0;
+        padding: 12px 10px;
+        background: var(--subtle-fg, #f7f8fa);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+    }
+    body.erp-agent-console .vobiz-wa-chat-list > * { flex: 0 0 auto; }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-wa-message {
+        width: fit-content;
+        max-width: 92%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        overflow-wrap: anywhere;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-wa-message.inbound { align-self: flex-start; }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-wa-message.outbound { align-self: flex-end; }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-wa-message-meta {
+        font-size: 11px;
+        font-weight: 500;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-wa-message-body { font-size: 14px; line-height: 1.6; }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-wa-composer {
+        display: grid;
+        grid-template-columns: 44px 44px 44px minmax(0, 1fr);
+        flex: 0 0 auto;
+        gap: 4px;
+        position: relative;
+        margin-top: 8px;
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        box-shadow: none;
+        background: var(--card-bg);
+        overflow: visible;
+    }
+    body.erp-agent-console .vobiz-workdesk-modal .vobiz-wa-composer textarea {
+        grid-row: 1;
+        grid-column: 1 / -1;
+        width: 100%;
+        height: 44px;
+        min-height: 44px;
+        max-height: 96px;
+        padding: 10px 6px;
+        font-size: 16px;
+        line-height: 24px;
+        overflow-y: auto;
+        resize: none;
+    }
+    body.erp-agent-console .vobiz-wa-composer :is(.vobiz-wa-icon-btn, .vobiz-wa-send) {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        font-size: 18px;
+    }
+    body.erp-agent-console .vobiz-wa-composer .vobiz-wa-send { justify-self: end; }
+    body.erp-agent-console .vobiz-wa-composer :is(.vobiz-wa-attach-wrap, .vobiz-wa-emoji-wrap) { position: static; }
+    body.erp-agent-console .vobiz-wa-composer .vobiz-wa-menu {
+        left: 0;
+        right: auto;
+        bottom: 60px;
+        z-index: 5;
+        min-width: 0;
+        max-width: 100%;
+        max-height: min(240px, 40dvh);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+    }
+    body.erp-agent-console .vobiz-wa-composer .vobiz-wa-menu button { min-height: 44px; }
+    body.erp-agent-console .vobiz-wa-composer .vobiz-wa-emoji-menu {
+        grid-template-columns: repeat(5, 44px);
+        gap: 2px;
+        width: max-content;
+    }
+    body.erp-agent-console .vobiz-wa-composer :is(button, textarea):focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+    body.erp-agent-console .vobiz-wa-chat-list :is(img, video, audio) { max-width: 100%; }
+}
+
+/* Preserve conversation space when the keyboard/landscape viewport is short. */
+@media screen and (max-width: 991px) {
+    body.erp-agent-console.erp-console-short-viewport .vobiz-workdesk-modal:has([data-wa-reply]) .modal-footer {
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+    body.erp-agent-console.erp-console-short-viewport .vobiz-detail-dialog:has([data-wa-reply]) > .erp-console-section-nav {
+        padding-top: 6px;
+        padding-bottom: 6px;
+        margin-bottom: 6px;
+    }
+    body.erp-agent-console.erp-console-short-viewport .vobiz-wa-composer textarea {
+        min-height: 36px;
+        height: 36px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+    }
+}
+@media screen and (min-width: 560px) and (max-width: 991px) {
+    body.erp-agent-console.erp-console-short-viewport .vobiz-wa-composer {
+        grid-template-columns: 44px 44px 44px minmax(0, 1fr) 44px;
+        align-items: center;
+    }
+    body.erp-agent-console.erp-console-short-viewport .vobiz-wa-composer textarea {
+        grid-row: auto;
+        grid-column: auto;
+    }
+}

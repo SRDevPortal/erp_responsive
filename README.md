@@ -28,6 +28,10 @@ and single-column fields improve phone layouts.
 Vobiz Agent Console and Analytics receive scoped layout fixes too. Vobiz System
 Call extends the Agent Console; its existing calling behavior is unchanged.
 No outbound calls are made by this app.
+Console Details appears directly after the record ID; readable queue columns
+scroll internally. Phone/tablet workdesks fit the viewport, phone sections use a
+selector, and mobile filters open in a contained sheet. These enhancements follow
+the same responsive setting and restore the native column order when disabled.
 
 Vobiz AI, WhatsApp, Vobiz Click To Call, Frappe CRM, Healthcare and Home
 have mobile shortcut cards. Long workspace link groups can expand/collapse on
@@ -55,4 +59,4 @@ existing Desk tabs. No dependency on sriaas_clinic is required.
 ## Verification
 
 Backend tests: erp_responsive.tests.test_settings.
-See docs/responsive-audit.md for local browser coverage and limitations.
+See docs/responsive-audit.md and docs/agent-console-mobile-audit.md for local browser coverage and limitations.

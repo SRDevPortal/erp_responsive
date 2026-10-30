@@ -209,6 +209,132 @@
             head.append(button);
         });
     }
+    // Move existing cells rather than cloning controls or replacing console handlers.
+    // Original indexes also let the settings switch restore the native column order.
+    function enhanceAgentConsole() {
+        if (!document.body.classList.contains("erp-agent-console")) return;
+        document.querySelectorAll(".vobiz-console .vobiz-queue table").forEach(table => {
+            const head = table.tHead?.rows[0];
+            if (!head?.querySelector('[data-role="queue-id-label"]')) return;
+            const widths = [32, 148, 190, 150, 112, 104, 150, 150, 130, 170, 80, 150, 190, 150, 160, 106, 190, 88];
+            // Only enhance the known queue schema. Encounter/report tables are independent.
+            if (head.cells.length !== widths.length) return;
+            table.classList.add("erp-console-queue");
+            [head, ...table.querySelectorAll('tbody[data-role="queue"] > tr')].forEach(row => {
+                if (row.cells.length !== widths.length) return; // Preserve empty/loading colspan rows.
+                if (!row.querySelector("[data-erp-console-index]")) {
+                    [...row.cells].forEach((cell, index) => {
+                        cell.dataset.erpConsoleIndex = String(index);
+                        if (cell.tagName === "TH") cell.style.setProperty("--erp-column-width", widths[index] + "px");
+                    });
+                }
+                const id = row.querySelector('[data-erp-console-index="1"]');
+                const action = row.querySelector('[data-erp-console-index="17"]');
+                if (id.nextElementSibling !== action) id.after(action);
+            });
+            const width = [...head.cells].reduce((total, cell) =>
+                total + (cell.classList.contains("hidden") ? 0 : widths[Number(cell.dataset.erpConsoleIndex)]), 0);
+            table.style.setProperty("--erp-queue-width", width + "px");
+            const wrap = table.parentElement;
+            if (!wrap.previousElementSibling?.classList.contains("erp-console-scroll-hint")) {
+                const hint = document.createElement("p");
+                hint.className = "erp-console-scroll-hint";
+                hint.textContent = __("Swipe to see name, phone and more details");
+                wrap.before(hint);
+            }
+        });
+        document.querySelectorAll(".vobiz-workdesk-card:has([data-wa-chat-list])").forEach(card => {
+            const preview = card.querySelector(":scope > .vobiz-related-meta");
+            if (!preview) return;
+            const text = preview.textContent.trim();
+            const repeated = text && [...card.querySelectorAll(".vobiz-wa-message-body")]
+                .some(message => message.textContent.trim() === text);
+            // Only suppress a preview that repeats an actual visible message.
+            // Keep unique summaries and unavailable/empty-conversation states intact.
+            preview.classList.toggle("erp-wa-duplicate-preview", !!repeated);
+        });
+        document.querySelectorAll(".vobiz-workdesk-modal [data-wa-reply]").forEach(input => {
+            if (input.hasAttribute("aria-label")) return;
+            input.setAttribute("aria-label", __("WhatsApp message"));
+            input.dataset.erpConsoleLabel = "1";
+        });
+        const labels = {
+            '[data-role="queue-source-filter"]': "Queue source",
+            '[data-role="queue-sort"]': "Sort queue",
+            '[data-role="search"]': "Search lead or patient",
+            '[data-role="encounter-search"]': "Search encounter or patient",
+            '[data-role="queue-page-size"]': "Rows per page",
+            '[data-action="queue-page-prev"]': "Previous queue page",
+            '[data-action="queue-page-next"]': "Next queue page",
+            '[data-action="clear-queue-filters"]': "Clear queue filters",
+            '[data-role="check-all"]': "Select all rows on this page",
+            '[data-role="row-check"]': "Select queue row",
+        };
+        Object.entries(labels).forEach(([selector, label]) => {
+            document.querySelectorAll(".vobiz-console " + selector).forEach(el => {
+                if (el.hasAttribute("aria-label")) return;
+                el.setAttribute("aria-label", __(label));
+                el.dataset.erpConsoleLabel = "1";
+            });
+        });
+        document.querySelectorAll(".vobiz-workdesk-modal .vobiz-tabs").forEach(tabs => {
+            let nav = tabs.previousElementSibling;
+            if (!nav?.classList.contains("erp-console-section-nav")) {
+                nav = document.createElement("label");
+                nav.className = "erp-console-section-nav";
+                const caption = document.createElement("span");
+                caption.textContent = __("View");
+                const select = document.createElement("select");
+                select.className = "form-control";
+                select.setAttribute("aria-label", __("Workdesk section"));
+                [...tabs.querySelectorAll("[data-detail-tab]")].forEach(button =>
+                    select.add(new Option(button.textContent.trim(), button.dataset.detailTab)));
+                select.addEventListener("change", () => {
+                    [...tabs.querySelectorAll("[data-detail-tab]")]
+                        .find(button => button.dataset.detailTab === select.value)?.click();
+                    const body = tabs.closest(".modal-body");
+                    if (body) body.scrollTop = 0;
+                });
+                nav.append(caption, select);
+                tabs.before(nav);
+            }
+            const active = tabs.querySelector("[data-detail-tab].active");
+            if (active) nav.querySelector("select").value = active.dataset.detailTab;
+        });
+        document.querySelectorAll(".vobiz-tabs").forEach(tabs => {
+            // Retain native click/keyboard behavior; expose which view is current.
+            tabs.querySelectorAll("[data-detail-tab], [data-console-view]").forEach(button => {
+                button.setAttribute("aria-pressed", String(button.classList.contains("active")));
+                button.dataset.erpConsoleTab = "1";
+            });
+        });
+    }
+    function restoreAgentConsole() {
+        document.querySelectorAll(".erp-wa-duplicate-preview")
+            .forEach(el => el.classList.remove("erp-wa-duplicate-preview"));
+        document.querySelectorAll(".erp-console-queue").forEach(table => {
+            [...table.rows].forEach(row => {
+                const cells = [...row.cells].filter(cell => cell.hasAttribute("data-erp-console-index"));
+                cells.sort((a, b) => Number(a.dataset.erpConsoleIndex) - Number(b.dataset.erpConsoleIndex));
+                cells.forEach(cell => {
+                    row.append(cell);
+                    delete cell.dataset.erpConsoleIndex;
+                    cell.style.removeProperty("--erp-column-width");
+                });
+            });
+            table.classList.remove("erp-console-queue");
+            table.style.removeProperty("--erp-queue-width");
+        });
+        document.querySelectorAll(".erp-console-scroll-hint, .erp-console-section-nav").forEach(el => el.remove());
+        document.querySelectorAll("[data-erp-console-label]").forEach(el => {
+            el.removeAttribute("aria-label");
+            delete el.dataset.erpConsoleLabel;
+        });
+        document.querySelectorAll("[data-erp-console-tab]").forEach(el => {
+            el.removeAttribute("aria-pressed");
+            delete el.dataset.erpConsoleTab;
+        });
+    }
     function enhance() {
         scheduled = false;
         if (!enabled) return;
@@ -216,6 +342,7 @@
         enhanceForm();
         enhanceFormNavigation();
         enhanceWorkspace();
+        enhanceAgentConsole();
         enhanceGrids();
         document.querySelectorAll(".page-container .standard-filter-section").forEach(section => {
             if (section.dataset.erpFilters) return;
@@ -261,6 +388,8 @@
     }
     function updateScope() {
         const route = frappe.get_route() || [];
+        document.body.classList.toggle("erp-agent-console", enabled && route[0] === "vobiz-agent-console");
+        updateConsoleViewport();
         document.body.classList.toggle("erp-mobile-form",
             enabled && route[0] === "Form");
         document.body.classList.toggle("erp-mobile-workspace",
@@ -271,6 +400,7 @@
         document.body.classList.toggle("erp-list-slider",
             enabled && route[0] === "List" && (!route[2] || route[2] === "List"));
         if (!enabled) {
+            restoreAgentConsole();
             configureCharts();
             restoreConnections();
             document.querySelectorAll(".erp-group-toggle").forEach(el => el.remove());
@@ -301,6 +431,20 @@
         }
         schedule();
     }
+    function updateConsoleViewport() {
+        const viewport = window.visualViewport;
+        const active = enabled && document.body.classList.contains("erp-agent-console");
+        document.body.classList.toggle("erp-console-short-viewport", !!(active && viewport && viewport.height < 500));
+        if (active && viewport) {
+            document.body.style.setProperty("--erp-console-viewport-height", viewport.height + "px");
+            document.body.style.setProperty("--erp-console-viewport-top", viewport.offsetTop + "px");
+        } else {
+            document.body.style.removeProperty("--erp-console-viewport-height");
+            document.body.style.removeProperty("--erp-console-viewport-top");
+        }
+    }
+    window.visualViewport?.addEventListener("resize", updateConsoleViewport);
+    window.visualViewport?.addEventListener("scroll", updateConsoleViewport);
     frappe.router.on("change", updateScope);
     phone.addEventListener("change", schedule);
     $(() => {
